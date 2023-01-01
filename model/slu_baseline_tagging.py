@@ -77,9 +77,17 @@ class TaggingFNNDecoder(nn.Module):
 
     def forward(self, hiddens, mask, labels=None):
         logits = self.output_layer(hiddens)
+        # print((1 - mask).shape)  (bsize x maxseqlen)
+        # print(((1 - mask).unsqueeze(-1).repeat(1, 1, self.num_tags) * -1e32).shape)  (bsize x maxseqlen x tag_num)
         logits += (1 - mask).unsqueeze(-1).repeat(1, 1, self.num_tags) * -1e32
         prob = torch.softmax(logits, dim=-1)
+        # print(prob.shape)
+        # print(labels.shape)
+        # print(prob[0][0].argmax())
+        
         if labels is not None:
+            # print(logits.view(-1, logits.shape[-1]).shape)
+            # print(labels.view(-1))
             loss = self.loss_fct(logits.view(-1, logits.shape[-1]), labels.view(-1))
             return prob, loss
         return prob
