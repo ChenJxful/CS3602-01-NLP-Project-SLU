@@ -4,40 +4,41 @@
     source activate slu
     pip install torch==1.7.1
 
-### 运行
-    
-在根目录下运行
+### 模型说明
+  包含 baseline 在内，目前该项目共包含 4 个网络模型来完成任务，它们分别是：
+  + baseline(Bi-LSTM)
+  + Bi-LSTM + CRF
+  + BERT + CRF
+  + BERT + Bi-LSTM + CRF
 
-    python scripts/slu_baseline.py
+### 运行训练脚本  
+在根目录下运行对应的命令
++ baseline(Bi-LSTM)
 
-### 代码说明
+      python scripts/slu_baseline.py
 
-+ `utils/args.py`:定义了所有涉及到的可选参数，如需改动某一参数可以在运行的时候将命令修改成
-        
-        python scripts/slu_baseline.py --<arg> <value>
-    其中，`<arg>`为要修改的参数名，`<value>`为修改后的值
-+ `utils/initialization.py`:初始化系统设置，包括设置随机种子和显卡/CPU
-+ `utils/vocab.py`:构建编码输入输出的词表
-+ `utils/word2vec.py`:读取词向量
-+ `utils/example.py`:读取数据
-+ `utils/batch.py`:将数据以批为单位转化为输入
-+ `model/slu_baseline_tagging.py`:baseline模型
-+ `scripts/slu_baseline.py`:主程序脚本
++ Bi-LSTM + CRF
 
-### 有关预训练语言模型
+      python scripts/BiLSTM_CRF.py
 
-本次代码中没有加入有关预训练语言模型的代码，如需使用预训练语言模型我们推荐使用下面几个预训练模型，若使用预训练语言模型，不要使用large级别的模型
-+ Bert: https://huggingface.co/bert-base-chinese
-+ Bert-WWM: https://huggingface.co/hfl/chinese-bert-wwm-ext
-+ Roberta-WWM: https://huggingface.co/hfl/chinese-roberta-wwm-ext
-+ MacBert: https://huggingface.co/hfl/chinese-macbert-base
++ BERT + CRF
 
-### 推荐使用的工具库
-+ transformers
-  + 使用预训练语言模型的工具库: https://huggingface.co/
-+ nltk
-  + 强力的NLP工具库: https://www.nltk.org/
-+ stanza
-  + 强力的NLP工具库: https://stanfordnlp.github.io/stanza/
-+ jieba
-  + 中文分词工具: https://github.com/fxsjy/jieba
+      python scripts/BERT_CRF.py
+
++ BERT + Bi-LSTM + CRF
+
+      python scripts/BERT_BiLSTM_CRF.py
+
+### 运行测试脚本
++ baseline(Bi-LSTM)
++ Bi-LSTM + CRF
+
+      python scripts/BiLSTM_CRF_test_script.py
+
++ BERT + CRF
+
+  **请注意：由于 bert 模型过大，所以没有上传 github，请在运行测试代码前先运行对应的训练代码**
+
+      python scripts/BERT_CRF_test_script.py
+
++ BERT + Bi-LSTM + CRF
