@@ -30,6 +30,7 @@
       python scripts/BERT_BiLSTM_CRF.py
 
 ### 运行测试脚本
+运行后会在 output/test/ 文件夹下生成对应的填充了 pred 后的 json 文件，同时会在控制台打印出结果。
 + baseline(Bi-LSTM)
 
       python scripts/slu_baseline_test_script.py

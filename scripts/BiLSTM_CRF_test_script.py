@@ -10,7 +10,7 @@ from utils.example import Example
 from utils.args import init_args
 from utils.initialization import *
 from utils.vocab import PAD
-
+import json
 args = init_args(sys.argv[1:])
 set_random_seed(args.seed)
 device = set_torch_device(args.device)
@@ -43,4 +43,12 @@ with torch.no_grad():
         predictions.extend(pred)
 torch.cuda.empty_cache()
 gc.collect()
+
+new_json = json.load(open('data/test_unlabelled.json', 'r'))
+new_json = sorted(new_json, key=lambda x: len(x[0]['asr_1best']), reverse=True)
+for i, utt in enumerate(new_json):
+    utt[0]['pred'] = predictions[i]
+    
+with open('output/test/BiLSTM_CRF.json', 'w', encoding="utf8") as f:
+    json.dump(new_json, f, indent=4, ensure_ascii=False)
 print(predictions)

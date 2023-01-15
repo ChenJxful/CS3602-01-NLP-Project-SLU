@@ -13,6 +13,7 @@ from utils.args import init_args
 from utils.initialization import *
 from utils.vocab import PAD
 from BERT_BiLSTM_CRF import MyExample, Model, SLUDataSet, convert_ids_to_words, remove_pad, tokenizer
+import json
 ############
 # 初始化参数 #
 ############
@@ -53,8 +54,7 @@ def test_collate_fn(data):
 #数据加载器
 test_loader = DataLoader(dataset=test_dataset,
                     batch_size=args.batch_size,
-                    collate_fn=test_collate_fn,
-                    shuffle=True)
+                    collate_fn=test_collate_fn)
 
 checkpoint = './output/model/bert_bilstm_crf_model.bin'
 model = Model(args).to(device)
@@ -65,7 +65,7 @@ model.eval()
 
 
 
-all_predictions = []
+predictions = []
 with torch.no_grad():
     for step, (inputs, labels) in enumerate(test_loader):
         #模型计算
@@ -73,7 +73,14 @@ with torch.no_grad():
         inputs = inputs.to(device)
         outs, _ = model(inputs, labels)
         pred = model.decode(outs, convert_ids_to_words(inputs['input_ids']))
-        all_predictions.extend(pred)
+        predictions.extend(pred)
 torch.cuda.empty_cache()
 gc.collect()
-print(all_predictions)
+
+new_json = json.load(open('data/test_unlabelled.json', 'r'))
+for i, utt in enumerate(new_json):
+    utt[0]['pred'] = predictions[i]
+    
+with open('output/test/BERT_BiLSTM_CRF.json', 'w', encoding="utf8") as f:
+    json.dump(new_json, f, indent=4, ensure_ascii=False)
+print(predictions)
