@@ -14,6 +14,8 @@ from utils.args import init_args
 from utils.initialization import *
 from utils.vocab import PAD
 
+import lexicon_matcher
+
 # 选择要加载的预训练语言模型
 checkpoint = "hfl/chinese-bert-wwm-ext"
 #加载预训练字典和分词方法
@@ -165,6 +167,7 @@ class Model(torch.nn.Module):
         self.pretrained = None
         self.batch_size = batch_size
         self.crf = CRF(num_tags, batch_first=True)
+        self.lexicon_matcher = lexicon_matcher.Matcher()
 
     def loss_func(self, logits, labels, mask):
         # print(self.crf.forward(logits, labels, mask, reduction='mean'))
@@ -194,13 +197,12 @@ class Model(torch.nn.Module):
         if tuneing:
             for i in pretrained.parameters():
                 i.requires_grad = True
-
             pretrained.train()
             self.pretrained = pretrained
+            
         else:
             for i in pretrained.parameters():
                 i.requires_grad_(False)
-
             pretrained.eval()
             self.pretrained = None
             
@@ -218,6 +220,7 @@ class Model(torch.nn.Module):
                 if (tag == 'O' or tag.startswith('B')) and len(tag_buff) > 0:
                     slot = '-'.join(tag_buff[0].split('-')[1:])
                     value = ''.join([utts_list[i][j] for j in idx_buff])
+                    value = self.lexicon_matcher.match(slot, value)
                     idx_buff, tag_buff = [], []
                     pred_tuple.append(f'{slot}-{value}')
                     # print(f'{slot}-{value}')
@@ -230,7 +233,7 @@ class Model(torch.nn.Module):
             if len(tag_buff) > 0:
                 slot = '-'.join(tag_buff[0].split('-')[1:])
                 value = ''.join([utts_list[i][j] for j in idx_buff])
-                
+                value = self.lexicon_matcher.match(slot, value)
                 # print(f'{slot}-{value}')
                 pred_tuple.append(f'{slot}-{value}')
             predictions.append(pred_tuple)
@@ -351,9 +354,10 @@ def train(epochs):
     except:
         pass
     
-model = Model(args.num_tags, args.batch_size).to(device)
-
-model.fine_tuneing(False)
-train(4)
-model.fine_tuneing(True)
-train(4)
+if __name__ == '__main__':
+        
+    model = Model(args.num_tags, args.batch_size).to(device)
+    model.fine_tuneing(False)
+    train(4)
+    model.fine_tuneing(True)
+    train(4)

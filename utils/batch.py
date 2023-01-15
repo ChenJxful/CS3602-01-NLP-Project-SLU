@@ -26,8 +26,9 @@ def from_example_list(args, ex_list, device='cpu', train=True):
     else:
         batch.labels = None
         batch.tag_ids = None
-        tag_mask = [[1] * len(ex.input_idx) + [0] * (max_len - len(ex.input_idx)) for ex in ex_list]
-        batch.tag_mask = torch.tensor(tag_mask, dtype=torch.uint8, device=device)
+        batch.tag_mask = [[1] * len(ex.input_idx) + [0] * (max_len - len(ex.input_idx)) for ex in ex_list]
+        batch.tag_mask = torch.tensor(batch.tag_mask, dtype=torch.uint8, device=device)
+
 
     return batch
 

@@ -13,6 +13,7 @@ from utils.evaluator import Evaluator
 from utils.args import init_args
 from utils.initialization import *
 from utils.vocab import PAD
+import lexicon_matcher
 
 # 选择要加载的预训练语言模型
 checkpoint = "hfl/chinese-bert-wwm-ext"
@@ -167,6 +168,7 @@ class Model(torch.nn.Module):
         self.rnn = getattr(nn, self.cell)(config.embed_size, config.hidden_size // 2, num_layers=config.num_layer, bidirectional=True, batch_first=True)
         self.dropout_layer = nn.Dropout(p=config.dropout)
         self.output_layer = TaggingFNNCRFDecoder(config.hidden_size, config.num_tags) 
+        self.lexicon_matcher = lexicon_matcher.Matcher()
     
     def forward(self, inputs, labels=None):
         
@@ -198,6 +200,8 @@ class Model(torch.nn.Module):
     def decode(self, tag_outputs, utts_list):
         predictions = []
         for i in range(self.config.batch_size):
+            if(i >= len(tag_outputs)):
+                break
             pred = tag_outputs[i]
             
             pred_tuple = []
@@ -208,6 +212,7 @@ class Model(torch.nn.Module):
                 if (tag == 'O' or tag.startswith('B')) and len(tag_buff) > 0:
                     slot = '-'.join(tag_buff[0].split('-')[1:])
                     value = ''.join([utts_list[i][j] for j in idx_buff])
+                    # value = self.lexicon_matcher.match(slot, value)
                     idx_buff, tag_buff = [], []
                     pred_tuple.append(f'{slot}-{value}')
                     # print(f'{slot}-{value}')
@@ -220,6 +225,7 @@ class Model(torch.nn.Module):
             if len(tag_buff) > 0:
                 slot = '-'.join(tag_buff[0].split('-')[1:])
                 value = ''.join([utts_list[i][j] for j in idx_buff])
+                # value = self.lexicon_matcher.match(slot, value)
                 # print(f'{slot}-{value}')
                 pred_tuple.append(f'{slot}-{value}')
             predictions.append(pred_tuple)
@@ -360,10 +366,11 @@ def train(epochs):
         print('FINAL BEST RESULT: \tEpoch: %d\tDev loss: %.4f\tDev acc: %.4f\tDev fscore(p/r/f): (%.4f/%.4f/%.4f)' % (best_result['iter'], best_result['dev_loss'], best_result['dev_acc'], best_result['dev_f1']['precision'], best_result['dev_f1']['recall'], best_result['dev_f1']['fscore']))
     except:
         pass
-    
-model = Model(args).to(device)
 
-model.fine_tuneing(False)
-train(5)
-model.fine_tuneing(True)
-train(4)
+if __name__ == '__main__':
+    model = Model(args).to(device)
+
+    model.fine_tuneing(False)
+    train(5)
+    model.fine_tuneing(True)
+    train(8)

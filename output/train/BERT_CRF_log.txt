@@ -1,0 +1,29 @@
+Use GPU with index 3
+Initialization finished ...
+Random seed is set to 999
+Use GPU with index 3
+Load dataset and database finished, cost 0.0911s ...
+Dataset size: train -> 5119 ; dev -> 895
+Training: 	Epoch: 0	Time: 8.7550	Training Loss: 32.6235
+Evaluation: 	Epoch: 0	Time: 1.7026	Dev acc: 2.89	Dev fscore(p/r/f): (1.47/5.63/2.33)
+NEW BEST MODEL: 	Epoch: 0	Dev loss: 28.9794	Dev acc: 2.89	Dev fscore(p/r/f): (1.47/5.63/2.33)
+Training: 	Epoch: 1	Time: 9.9620	Training Loss: 27.2963
+Evaluation: 	Epoch: 1	Time: 1.4881	Dev acc: 12.38	Dev fscore(p/r/f): (12.25/20.44/15.32)
+NEW BEST MODEL: 	Epoch: 1	Dev loss: 23.8583	Dev acc: 12.38	Dev fscore(p/r/f): (12.25/20.44/15.32)
+Training: 	Epoch: 2	Time: 9.2837	Training Loss: 22.1398
+Evaluation: 	Epoch: 2	Time: 1.4734	Dev acc: 17.71	Dev fscore(p/r/f): (16.85/24.97/20.12)
+NEW BEST MODEL: 	Epoch: 2	Dev loss: 18.9481	Dev acc: 17.71	Dev fscore(p/r/f): (16.85/24.97/20.12)
+Training: 	Epoch: 3	Time: 9.2733	Training Loss: 17.2876
+Evaluation: 	Epoch: 3	Time: 1.4859	Dev acc: 19.79	Dev fscore(p/r/f): (18.90/25.70/21.78)
+NEW BEST MODEL: 	Epoch: 3	Dev loss: 14.4144	Dev acc: 19.79	Dev fscore(p/r/f): (18.90/25.70/21.78)
+Training: 	Epoch: 0	Time: 17.9173	Training Loss: 2.6790
+Evaluation: 	Epoch: 0	Time: 1.3486	Dev acc: 81.48	Dev fscore(p/r/f): (84.86/89.84/87.28)
+NEW BEST MODEL: 	Epoch: 0	Dev loss: 1.2792	Dev acc: 81.48	Dev fscore(p/r/f): (84.86/89.84/87.28)
+Training: 	Epoch: 1	Time: 32.2345	Training Loss: 1.1099
+Evaluation: 	Epoch: 1	Time: 1.3627	Dev acc: 84.03	Dev fscore(p/r/f): (85.37/92.17/88.64)
+NEW BEST MODEL: 	Epoch: 1	Dev loss: 1.1643	Dev acc: 84.03	Dev fscore(p/r/f): (85.37/92.17/88.64)
+Training: 	Epoch: 2	Time: 33.7439	Training Loss: 0.6646
+Evaluation: 	Epoch: 2	Time: 1.3312	Dev acc: 84.61	Dev fscore(p/r/f): (86.54/92.04/89.21)
+NEW BEST MODEL: 	Epoch: 2	Dev loss: 1.2785	Dev acc: 84.61	Dev fscore(p/r/f): (86.54/92.04/89.21)
+Training: 	Epoch: 3	Time: 32.4237	Training Loss: 0.4495
+Evaluation: 	Epoch: 3	Time: 1.3123	Dev acc: 82.99	Dev fscore(p/r/f): (87.61/89.11/88.35)

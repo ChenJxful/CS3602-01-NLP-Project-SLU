@@ -31,6 +31,9 @@
 
 ### 运行测试脚本
 + baseline(Bi-LSTM)
+
+      python scripts/slu_baseline_test_script.py
+      
 + Bi-LSTM + CRF
 
       python scripts/BiLSTM_CRF_test_script.py
@@ -42,3 +45,5 @@
       python scripts/BERT_CRF_test_script.py
 
 + BERT + Bi-LSTM + CRF
+
+      python scripts/BERT_BiLSTM_CRF_test_script.py

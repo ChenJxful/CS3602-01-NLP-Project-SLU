@@ -2,45 +2,77 @@ import sys, os, time, gc
 from torch.optim import Adam
 import torch
 import torch.nn as nn
+from torch.utils.data import DataLoader
+from transformers import BertTokenizer
 install_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(install_path)
-from model.bert_crf_model import SLUTagging
+
 from utils.batch import from_example_list
 from utils.example import Example
 from utils.args import init_args
 from utils.initialization import *
 from utils.vocab import PAD
+from BERT_CRF import MyExample, Model, SLUDataSet, convert_ids_to_words, tokenizer
 
+############
+# 初始化参数 #
+############
 args = init_args(sys.argv[1:])
 set_random_seed(args.seed)
 device = set_torch_device(args.device)
+print("Initialization finished ...")
+print("Random seed is set to %d" % (args.seed))
+print("Use GPU with index %s" % (args.device) if args.device >= 0 else "Use CPU as target torch device")
 
-start_time = time.time()
-train_path = os.path.join(args.dataroot, 'train.json')
-test_path = os.path.join('./data', 'test_unlabelled.json')
-Example.configuration(args.dataroot, train_path=train_path, word2vec_path=args.word2vec_path)
-dataset = Example.load_dataset(test_path)
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+start_time = time.time()    
+test_path = os.path.join(args.dataroot, 'test_unlabelled.json')
+MyExample.load_label_vocab(args.dataroot)
+test_dataset = SLUDataSet(test_path)
 
-args.vocab_size = Example.word_vocab.vocab_size
-args.pad_idx = Example.word_vocab[PAD]
-args.num_tags = Example.label_vocab.num_tags
-args.tag_pad_idx = Example.label_vocab.convert_tag_to_idx(PAD)
+print("Load dataset and database finished, cost %.4fs ..." % (time.time() - start_time))
+print("Dataset size: test -> %d." % (len(test_dataset)))
+
+word_vocab = tokenizer.get_vocab()
+args.vocab_size = len(word_vocab)
+args.pad_idx = 0 # word_vocab['[PAD]'] = 0
+args.num_tags = MyExample.label_vocab.num_tags
+args.tag_pad_idx = MyExample.label_vocab.convert_tag_to_idx(PAD)
+label_vocab = MyExample.label_vocab
+label_vocab.tag2idx['[SPE-TOKEN]'] = 74
+label_vocab.idx2tag[74] = '[SPE-TOKEN]'
+args.num_tags += 1
+#################
+# 定义数据整理函数 #
+#################
+def test_collate_fn(data):
+    utt_batch = [i['utt'] for i in data] 
+    inputs = tokenizer.batch_encode_plus(utt_batch,
+                                         padding=True,
+                                         return_tensors='pt')
+
+    return inputs, None
+#数据加载器
+test_loader = DataLoader(dataset=test_dataset,
+                    batch_size=args.batch_size,
+                    collate_fn=test_collate_fn,
+                    shuffle=True)
 
 checkpoint = './output/model/bert_crf_model.bin'
-model = SLUTagging(args).to(device)
+model = Model(args.num_tags, args.batch_size).to(device)
+model.fine_tuneing(True)
+
 model.load_state_dict(torch.load(checkpoint)['model'])
 model.eval()
 
-Example.word2vec.load_embeddings(model.word_embed, Example.word_vocab, device=device)
-
-predictions = []
+all_predictions = []
 with torch.no_grad():
-    for i in range(0, len(dataset), 64):
-        cur_dataset = dataset[i: i + 64]
-        current_batch = from_example_list(args, cur_dataset, device, train=False)
-        pred, _, _ = model.decode(Example.label_vocab, current_batch)
-        predictions.extend(pred)
+    for step, (inputs, labels) in enumerate(test_loader):
+        #模型计算
+        #[b, lens] -> [b, lens, 8]
+        inputs = inputs.to(device)
+        outs, _ = model(inputs, labels)
+        pred = model.decode(outs, convert_ids_to_words(inputs['input_ids']))
+        all_predictions.extend(pred)
 torch.cuda.empty_cache()
 gc.collect()
-print(predictions)
+print(all_predictions)
