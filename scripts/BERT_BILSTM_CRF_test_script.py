@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 install_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(install_path)
-from model.slu_baseline_tagging import SLUTagging
+from model.bert_bilstm_crf_model import SLUTagging
 from utils.batch import from_example_list
 from utils.example import Example
 from utils.args import init_args
@@ -27,9 +27,9 @@ args.pad_idx = Example.word_vocab[PAD]
 args.num_tags = Example.label_vocab.num_tags
 args.tag_pad_idx = Example.label_vocab.convert_tag_to_idx(PAD)
 
-
+checkpoint = './output/model/bert_bilstm_crf_model.bin'
 model = SLUTagging(args).to(device)
-model.load_state_dict(torch.load('./output/model/model.bin')['model'])
+model.load_state_dict(torch.load(checkpoint)['model'])
 model.eval()
 
 Example.word2vec.load_embeddings(model.word_embed, Example.word_vocab, device=device)

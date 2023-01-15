@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.utils.rnn as rnn_utils
 from torchcrf import CRF
+import lexicon_matcher
 
 class SLUTagging(nn.Module):
 
@@ -14,6 +15,7 @@ class SLUTagging(nn.Module):
         self.rnn = getattr(nn, self.cell)(config.embed_size, config.hidden_size // 2, num_layers=config.num_layer, bidirectional=True, batch_first=True)
         self.dropout_layer = nn.Dropout(p=config.dropout)
         self.output_layer = TaggingFNNCRFDecoder(config.hidden_size, config.num_tags)
+        self.lexicon_matcher = lexicon_matcher.Matcher()
 
     def forward(self, batch):
         tag_ids = batch.tag_ids
@@ -51,6 +53,7 @@ class SLUTagging(nn.Module):
                 if (tag == 'O' or tag.startswith('B')) and len(tag_buff) > 0:
                     slot = '-'.join(tag_buff[0].split('-')[1:])
                     value = ''.join([batch.utt[i][j] for j in idx_buff])
+                    value = self.lexicon_matcher.match(slot, value)
                     idx_buff, tag_buff = [], []
                     pred_tuple.append(f'{slot}-{value}')
                     # print(f'{slot}-{value}')
@@ -63,6 +66,7 @@ class SLUTagging(nn.Module):
             if len(tag_buff) > 0:
                 slot = '-'.join(tag_buff[0].split('-')[1:])
                 value = ''.join([batch.utt[i][j] for j in idx_buff])
+                value = self.lexicon_matcher.match(slot, value)
                 # print(f'{slot}-{value}')
                 pred_tuple.append(f'{slot}-{value}')
             predictions.append(pred_tuple)

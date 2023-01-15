@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 install_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(install_path)
-from model.slu_baseline_tagging_crf import SLUTagging
+from model.bert_crf_model import SLUTagging
 from utils.batch import from_example_list
 from utils.example import Example
 from utils.args import init_args

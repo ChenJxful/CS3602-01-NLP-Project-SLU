@@ -90,4 +90,4 @@ class TaggingFNNDecoder(nn.Module):
             # print(labels.view(-1))
             loss = self.loss_fct(logits.view(-1, logits.shape[-1]), labels.view(-1))
             return prob, loss
-        return prob
+        return prob, torch.zeros(1)
