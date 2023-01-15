@@ -209,6 +209,8 @@ class Model(torch.nn.Module):
     def decode(self, tag_outputs, utts_list):
         predictions = []
         for i in range(self.batch_size):
+            if(i >= len(tag_outputs)):
+                break
             pred = tag_outputs[i]
             
             pred_tuple = []

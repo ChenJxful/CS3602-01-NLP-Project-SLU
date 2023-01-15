@@ -60,7 +60,8 @@ test_loader = DataLoader(dataset=test_dataset,
 checkpoint = './output/model/bert_crf_model.bin'
 model = Model(args.num_tags, args.batch_size).to(device)
 model.fine_tuneing(True)
-
+# for name, parameters in model.named_parameters():
+#     print(name, ':', parameters.size())
 model.load_state_dict(torch.load(checkpoint)['model'])
 model.eval()
 
